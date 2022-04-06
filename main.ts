@@ -42,7 +42,7 @@ function button () {
             key_process = key1
             if (key_process == 0) {
                 time_out = 50
-                _in()
+                is_button = 1
             }
         } else {
             time_out += -1
@@ -54,10 +54,20 @@ function button () {
     }
     basic.pause(20)
 }
+function doSomething () {
+    // CHECK LED
+    pins.digitalWritePin(DigitalPin.P2, 0)
+    // CHECK LED
+    pins.digitalWritePin(DigitalPin.P3, 1)
+    basic.pause(1000)
+    // CHECK LED
+    pins.digitalWritePin(DigitalPin.P2, 1)
+    // CHECK LED
+    pins.digitalWritePin(DigitalPin.P3, 0)
+}
 function IR () {
     if (pins.digitalReadPin(DigitalPin.P6) == 1) {
         ir = 1
-        NPNLCD.ShowString("IR", 4, 4)
     } else if (pins.digitalReadPin(DigitalPin.P6) == 0) {
         ir = 0
     }
@@ -100,7 +110,7 @@ serial.onDataReceived(serial.delimiters(Delimiters.Hash), function () {
     } else if (cmd == "3") {
         NPNLCD.off()
     } else if (cmd == "4") {
-        pins.analogWritePin(AnalogPin.P8, 66)
+        pins.analogWritePin(AnalogPin.P8, 200)
     } else if (cmd == "5") {
         pins.analogWritePin(AnalogPin.P8, 0)
     }
@@ -110,30 +120,33 @@ function sendin () {
     serial.writeString("!1:INPEOPLE:1#")
 }
 function _in () {
-    if (count_people < 3) {
+    if (count_people < 3 && is_button == 1) {
         // CHECK LED
         pins.digitalWritePin(DigitalPin.P2, 0)
         // CHECK LED
         pins.digitalWritePin(DigitalPin.P3, 1)
+        is_button = 0
         basic.pause(1000)
         if (door == 1) {
             basic.pause(1000)
             if (ir == 1) {
                 count_people += 1
                 sendin()
+                LCD()
                 // CHECK LED
                 pins.digitalWritePin(DigitalPin.P2, 1)
                 // CHECK LED
                 pins.digitalWritePin(DigitalPin.P3, 0)
             }
         }
-    } else if (count_people == 3) {
+    } else if (count_people > 3) {
         pins.analogWritePin(AnalogPin.P8, 66)
         basic.pause(1000)
         pins.analogWritePin(AnalogPin.P8, 0)
     }
 }
 let cmd = ""
+let is_button = 0
 let time_out = 0
 let key0 = 0
 let key1 = 0
@@ -141,6 +154,9 @@ let door = 0
 let key_process = 0
 let ir = 0
 let count_people = 0
+// 19 20
+NPNLCD.LcdInit()
+NPNLCD.ShowString("Xin chao", 0, 0)
 count_people = 0
 ir = 0
 key_process = 1
@@ -150,15 +166,11 @@ pins.digitalWritePin(DigitalPin.P2, 1)
 pins.digitalWritePin(DigitalPin.P3, 0)
 // button
 pins.setPull(DigitalPin.P0, PinPullMode.PullUp)
-// 19 20
-NPNLCD.LcdInit()
-NPNLCD.ShowString("Xin chao", 0, 0)
 basic.forever(function () {
-    LCD()
-    button()
-    basic.pause(1000)
+    _in()
 })
 basic.forever(function () {
+    button()
     IR()
     opendoor()
 })
