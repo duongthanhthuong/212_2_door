@@ -5,7 +5,8 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "IoTBitKit": "github:npnlab-vn/IoTBitKit#da5c038449d8923127a532482c24bbbc30ad85c1"
+        "IoTBitKit": "github:npnlab-vn/IoTBitKit#da5c038449d8923127a532482c24bbbc30ad85c1",
+        "servo": "*"
     },
     "files": [
         "main.blocks",

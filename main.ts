@@ -33,6 +33,30 @@ function in2 () {
         pins.analogWritePin(AnalogPin.P8, 0)
     }
 }
+function outtemp () {
+    if (is_button == 0) {
+        // CHECK LED = SERVO
+        pins.digitalWritePin(DigitalPin.P2, 1)
+        // CHECK LED
+        pins.digitalWritePin(DigitalPin.P3, 0)
+        if (door == 1) {
+            // CHECK LED = SERVO
+            pins.digitalWritePin(DigitalPin.P2, 0)
+            // CHECK LED
+            pins.digitalWritePin(DigitalPin.P3, 1)
+            basic.pause(500)
+            if (ir_out == 1) {
+                count_people += -1
+                LCD()
+                sendout()
+                // CHECK LED
+                pins.digitalWritePin(DigitalPin.P2, 1)
+                // CHECK LED
+                pins.digitalWritePin(DigitalPin.P3, 0)
+            }
+        }
+    }
+}
 function button () {
     key1 = key0
     // đọc nút nhấn 
@@ -65,39 +89,39 @@ function doSomething () {
     // CHECK LED
     pins.digitalWritePin(DigitalPin.P3, 0)
 }
-function IR () {
-    if (pins.digitalReadPin(DigitalPin.P6) == 1) {
-        ir = 1
-    } else if (pins.digitalReadPin(DigitalPin.P6) == 0) {
-        ir = 0
-    }
-}
 function sendout () {
     serial.writeString("!1:PEOPLE:" + count_people + "#")
     serial.writeString("!1:OUTPEOPLE:1#")
 }
 function out () {
-    if (is_button == 0) {
+    // CHECK LED = SERVO
+    pins.digitalWritePin(DigitalPin.P2, 1)
+    // CHECK LED = SERVO
+    pins.digitalWritePin(DigitalPin.P3, 0)
+    if (door == 1) {
         // CHECK LED = SERVO
-        pins.digitalWritePin(DigitalPin.P2, 1)
+        pins.digitalWritePin(DigitalPin.P2, 0)
         // CHECK LED
         pins.digitalWritePin(DigitalPin.P3, 1)
-        if (door == 1) {
-            // CHECK LED = SERVO
-            pins.digitalWritePin(DigitalPin.P2, 0)
-            // CHECK LED
-            pins.digitalWritePin(DigitalPin.P3, 1)
-            basic.pause(500)
-            if (ir == 1) {
+        basic.pause(500)
+        if (ir_out == 1) {
+            if (count_people > 0) {
                 count_people += -1
-                LCD()
-                sendout()
-                // CHECK LED
-                pins.digitalWritePin(DigitalPin.P2, 1)
-                // CHECK LED
-                pins.digitalWritePin(DigitalPin.P3, 0)
             }
+            LCD()
+            sendout()
+            // CHECK LED
+            pins.digitalWritePin(DigitalPin.P2, 1)
+            // CHECK LED
+            pins.digitalWritePin(DigitalPin.P3, 0)
         }
+    }
+}
+function IR_in () {
+    if (pins.digitalReadPin(DigitalPin.P6) == 1) {
+        ir = 1
+    } else if (pins.digitalReadPin(DigitalPin.P6) == 0) {
+        ir = 0
     }
 }
 serial.onDataReceived(serial.delimiters(Delimiters.Hash), function () {
@@ -106,7 +130,7 @@ serial.onDataReceived(serial.delimiters(Delimiters.Hash), function () {
         // CHECK LED
         pins.digitalWritePin(DigitalPin.P2, 0)
         // CHECK LED
-        pins.digitalWritePin(DigitalPin.P3, 1)
+        pins.digitalWritePin(DigitalPin.P3, 0)
     } else if (cmd == "1") {
         // CHECK LED
         pins.digitalWritePin(DigitalPin.P2, 1)
@@ -153,10 +177,18 @@ function _in () {
         is_button = 0
     }
 }
+function IR_out () {
+    if (pins.digitalReadPin(DigitalPin.P4) == 1) {
+        ir_out = 1
+    } else if (pins.digitalReadPin(DigitalPin.P4) == 0) {
+        ir_out = 0
+    }
+}
 let cmd = ""
 let time_out = 0
 let key0 = 0
 let key1 = 0
+let ir_out = 0
 let door = 0
 let is_button = 0
 let key_process = 0
@@ -181,6 +213,7 @@ basic.forever(function () {
 })
 basic.forever(function () {
     button()
-    IR()
+    IR_in()
+    IR_out()
     opendoor()
 })
