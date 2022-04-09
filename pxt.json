@@ -5,13 +5,13 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "IoTBitKit": "github:npnlab-vn/IoTBitKit#da5c038449d8923127a532482c24bbbc30ad85c1",
-        "servo": "*"
+        "IoTBitKit": "github:npnlab-vn/IoTBitKit#da5c038449d8923127a532482c24bbbc30ad85c1"
     },
     "files": [
         "main.blocks",
         "main.ts",
-        "README.md"
+        "README.md",
+        "main.py"
     ],
     "testFiles": [
         "test.ts"
